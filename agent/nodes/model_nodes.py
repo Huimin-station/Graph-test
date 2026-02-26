@@ -10,19 +10,11 @@ def model_start_node(state:dict):
             model_start.invoke([SystemMessage(content=model_start_prompt)]+ state["messages"])
         ]
     }
-# 大模型天气获取节点
-def model_weather_node(state:dict):
+# 并行工具获取节点
+def model_with_tools_node(state:dict):
     return {
         "messages":[
-            model_weather.invoke([SystemMessage(content=model_weather_prompt)]+state["messages"])
-        ]
-    }
-
-# 大模型天气获取节点
-def model_local_node(state:dict):
-    return {
-        "messages":[
-            model_local.invoke([SystemMessage(content=model_local_prompt)]+ state["messages"])
+            model_with_tools.invoke([SystemMessage(content=model_with_tools_prompt)]+state["messages"])
         ]
     }
 
