@@ -21,4 +21,4 @@ def search_time()->str:
     """当问题需要准确的时间时候调用"""
     return str(datetime.datetime.now())
 
-tools = [search_weather,search_local_position,search_time]
+base_tools = [search_weather,search_local_position,search_time]

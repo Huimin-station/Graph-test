@@ -1,3 +1,5 @@
+import asyncio
+
 from langchain_core.messages import HumanMessage, AIMessageChunk
 from langgraph.constants import START,END
 from langgraph.graph import StateGraph
@@ -11,7 +13,7 @@ from dotenv import load_dotenv
 
 
 
-def main():
+async def main():
     load_dotenv()
     agent = (
         StateGraph(MessageState)
@@ -38,12 +40,11 @@ def main():
         .compile()
         )
 
-    for chunk in agent.stream({"messages": [HumanMessage("我现在想去上海，有什么建议？天气情况怎样")]},stream_mode=["messages"]):
+    async for chunk in agent.astream({"messages": [HumanMessage("你都可以调用那些工具")]},stream_mode=["messages"]):
         if isinstance(chunk[-1][0],AIMessageChunk) and (chunk[-1][0].content != ("False" or "True")):
             print(chunk[-1][0].content,end="",flush=True)
 
-    get_png(agent)
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
