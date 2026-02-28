@@ -1,6 +1,7 @@
 import asyncio
 
 from langchain_core.messages import HumanMessage, AIMessageChunk, AIMessage
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.constants import START,END
 from langgraph.graph import StateGraph
 from agent.messages_state.messages_state import MessageState
@@ -15,6 +16,7 @@ from dotenv import load_dotenv
 
 async def main():
     load_dotenv()
+    checkpointer = InMemorySaver()
     agent = (
         StateGraph(MessageState)
         # .add_node("获取实时时间节点",current_time_node)
@@ -37,25 +39,15 @@ async def main():
         )
         .add_edge("工具调用节点","模型决策节点")
         .add_edge("消息整合大模型节点",END)
-        .compile()
+        .compile(checkpointer = checkpointer)
         )
-    history = []
-
     while True:
-        user = input("\n用户：")
-        user_content = user.strip()
-        ai_content = ""
+        user = input("\nusr_input：")
 
-        async for chunk in agent.astream({"messages":history + [HumanMessage(user)]},stream_mode=["messages"]):
-            ai_content += chunk[-1][0].content
-
-
+        async for chunk in agent.astream({"messages":[HumanMessage(user)]}, {"configurable": {"thread_id": "1"}},stream_mode=["messages"]):
             if isinstance(chunk[-1][0],AIMessageChunk) and (chunk[-1][0].content != ("False" or "True")):
                 print(chunk[-1][0].content,end="",flush=True)
-        print("\nUSR:",user)
-        print("\nAI:",ai_content)
-        history.append(HumanMessage(user))
-        history.append(AIMessage(ai_content))
+
 
 
 
