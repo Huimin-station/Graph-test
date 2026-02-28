@@ -1,44 +1,34 @@
 import asyncio
-
 from langchain_core.messages import HumanMessage, AIMessageChunk, AIMessage
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.constants import START,END
 from langgraph.graph import StateGraph
 from agent.messages_state.messages_state import MessageState
-from agent.nodes.choose import search_or_not, continue_or_not
+from agent.nodes.choose import  continue_or_not
 from agent.nodes.model_nodes import *
+from agent.nodes.rag_node import rag_node
 from agent.nodes.tools_nodes import *
-from utils.png_print import get_png
 from dotenv import load_dotenv
 
 
 
-
 async def main():
+
     load_dotenv()
     checkpointer = InMemorySaver()
     agent = (
         StateGraph(MessageState)
-        # .add_node("获取实时时间节点",current_time_node)
-        .add_node("模型检查节点",model_start_node)
+        .add_node("rag知识库节点",rag_node)
         .add_node("模型决策节点",model_with_tools_node)
         .add_node("工具调用节点",tools_node)
-        .add_node("消息整合大模型节点",model_messages_get_node)
-        # .add_edge(START,"获取实时时间节点")
-        .add_edge(START,"模型检查节点")
-        # .add_edge("获取实时时间节点","模型检查节点")
-        .add_conditional_edges(
-            "模型检查节点",
-            search_or_not,
-            ["模型决策节点","消息整合大模型节点"]
-        )
+        .add_edge(START,"rag知识库节点")
+        .add_edge("rag知识库节点","模型决策节点")
         .add_conditional_edges(
             "模型决策节点",
             continue_or_not,
-            [ "工具调用节点","消息整合大模型节点"]
+            [ "工具调用节点",END]
         )
         .add_edge("工具调用节点","模型决策节点")
-        .add_edge("消息整合大模型节点",END)
         .compile(checkpointer = checkpointer)
         )
     while True:

@@ -1,15 +1,12 @@
-import datetime
-from typing import List
-
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import TextLoader
 from langchain_community.embeddings import DashScopeEmbeddings
 from utils.key import dashscope_api_key
-print(datetime.datetime.now())
+
 
 # 文档加载器
 loader = TextLoader(
-    "新年知识.txt",
+    "../agent/knowledge/新年知识.txt",
     encoding="utf-8"
 )
 documents = loader.load()
@@ -53,4 +50,3 @@ for i in texts:
     vector_store.add_texts([i])
 # 相似度搜索
 similar_docs = vector_store.similarity_search("天河水", k=1)
-print(similar_docs)
