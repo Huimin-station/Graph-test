@@ -14,9 +14,10 @@ from agent.prompt.model_system_prompt import *
 # 并行工具获取节点
 async def model_with_tools_node(state:dict):
     model_list_get = await model_list()
+    print(state)
     return {
         "messages":[
-            model_list_get[1].invoke([SystemMessage(content=model_with_tools_prompt)]+state["messages"]+state["knowledge"])
+            model_list_get[1].invoke([SystemMessage(content=model_with_tools_prompt+state["knowledge"])]+state["messages"])
         ]
     }
 

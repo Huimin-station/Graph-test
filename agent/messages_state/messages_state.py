@@ -6,4 +6,4 @@ from langgraph.graph import add_messages
 
 class MessageState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
-    knowledge: list[AIMessage]
+    knowledge: str
